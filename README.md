@@ -70,3 +70,6 @@ Later folders depend on variables set by earlier ones, so running a folder alone
 ## Documentation
 
 API documentation: https://documenter.getpostman.com/view/18876113/2sBYHYtxpf
+
+## Test Cases
+https://docs.google.com/spreadsheets/d/1bNw7jQ__TcfVeqO1QMU9pRmN6VPgR82U0KmjoZrNv3Y/edit?usp=drive_link

@@ -7,11 +7,54 @@
   },
   "item": [
     {
-      "name": "Users login",
+      "name": "Admin user login",
       "item": [
         {
           "name": "Admin Login",
           "item": [
+            {
+              "name": "Admin login with wrong creds",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let jsonData = pm.response.json();\r\npm.test(\"Verify that admin can not login with wrong creds\", ()=> {\r\n    pm.expect(jsonData.message).to.eql(\"Password incorrect\");\r\n});\r\n\r\npm.test(\"Verify that admin can not login with wrong creds and status code is 401\", function () {\r\n    pm.response.to.have.status(401);\r\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminAccessToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"email\": \"admin@dmoney.com\",\r\n  \"password\": \"12345\"\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/user/login",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "user",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
             {
               "name": "Admin login",
               "event": [
@@ -20,7 +63,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "let jsonData = pm.response.json();\r\nlet adminAccessToken = jsonData.token;\r\n\r\npm.collectionVariables.set(\"adminAccessToken\", adminAccessToken);\r\n"
+                      "let jsonData = pm.response.json();\r\nlet adminAccessToken = jsonData.token;\r\n\r\npm.collectionVariables.set(\"adminAccessToken\", adminAccessToken);\r\n\r\n\r\npm.test(\"Verify admin is able to login and receives an access token\", function () {\r\n    pm.response.to.have.status(200);\r\n    pm.expect(pm.response.json().token).to.be.a(\"string\"); \r\n});"
                     ]
                   }
                 }
@@ -63,6 +106,62 @@
       "name": "Add users",
       "item": [
         {
+          "name": "Create duplicate user",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let prefix = \"0130\";\r\nlet min = 1000000;\r\nlet max = 9999999;\r\n\r\nlet randomNumber = Math.round(Math.random()*(max-min)+min);\r\nlet phoneNumber = prefix+randomNumber;\r\n\r\n//console.log(\"customer 1 phone number\", phoneNumber);\r\n//pm.collectionVariables.set(\"customer1PhoneNumber\", phoneNumber);\r\n\r\n//let gmailId = Math.round(Math.random()*(1000,9999)+1000);\r\n//pm.collectionVariables.set(\"customer1GmailId\", gmailId);\r\n//console.log(\"customer 1 gmail id\", gmailId);        "
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Verify that user can not be created with exisitng email\", function () {\r\n    var jsonData = pm.response.json();\r\n    pm.expect(jsonData.message).to.contains(\"User already exists\");\r\n});\r\n"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              },
+              {
+                "key": "X-AUTH-SECRET-KEY",
+                "value": "{{partnerKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"{{$randomFullName}}\",\r\n  \"email\": \"r02.shifat+4571@gmail.com\",\r\n  \"password\": \"pass1234\",\r\n  \"phone_number\": \"{{customerPhoneNumber}}\",\r\n  \"nid\": \"9876543210\",\r\n  \"role\": \"Customer\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/user/create",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "user",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Add customer 1",
           "event": [
             {
@@ -79,7 +178,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "let jsonData = pm.response.json();\r\nlet customer1Id = jsonData.user.id;\r\n\r\npm.collectionVariables.set(\"customer1Id\", customer1Id);"
+                  "let jsonData = pm.response.json();\r\nlet customer1Id = jsonData.user.id;\r\n\r\npm.test(\"Verify admin is able to create customer 1 with role Customer\", function () {\r\n    pm.response.to.have.status(201);\r\n    const user = pm.response.json().user;\r\n    pm.expect(user.role).to.eql(\"Customer\");\r\n});\r\n\r\npm.collectionVariables.set(\"customer1Id\", customer1Id);\r\n\r\n"
                 ]
               }
             }
@@ -135,7 +234,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "let jsonData = pm.response.json();\r\nlet customer2Id = jsonData.user.id;\r\n\r\npm.collectionVariables.set(\"customer2Id\", customer2Id);"
+                  "let jsonData = pm.response.json();\r\nlet customer2Id = jsonData.user.id;\r\n\r\npm.test(\"Verify admin is able to create customer 2 with role Customer\", function () {\r\n    pm.response.to.have.status(201);\r\n    const user = pm.response.json().user;\r\n    pm.expect(user.role).to.eql(\"Customer\");\r\n});\r\n\r\npm.collectionVariables.set(\"customer2Id\", customer2Id);"
                 ]
               }
             }
@@ -191,7 +290,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "let jsonData = pm.response.json();\r\nlet agentId = jsonData.user.id;\r\n\r\npm.collectionVariables.set(\"agentId\", agentId);"
+                  "let jsonData = pm.response.json();\r\nlet agentId = jsonData.user.id;\r\n\r\npm.test(\"Verify admin is able to create agent with role Agent\", function () {\r\n    pm.response.to.have.status(201);\r\n    const user = pm.response.json().user;\r\n    pm.expect(user.role).to.eql(\"Agent\");\r\n});\r\n\r\npm.collectionVariables.set(\"agentId\", agentId);"
                 ]
               }
             }
@@ -247,7 +346,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "let jsonData = pm.response.json();\r\nlet merchantId = jsonData.user.id;\r\n\r\npm.collectionVariables.set(\"merchantId\", merchantId);"
+                  "let jsonData = pm.response.json();\r\nlet merchantId = jsonData.user.id;\r\n\r\npm.test(\"Verify admin is able to create merchant with role Merchant\", function () {\r\n    pm.response.to.have.status(201);\r\n    const user = pm.response.json().user;\r\n    pm.expect(user.role).to.eql(\"Merchant\");\r\n});\r\n\r\npm.collectionVariables.set(\"merchantId\", merchantId);"
                 ]
               }
             }
@@ -293,6 +392,17 @@
       "item": [
         {
           "name": "Active customer 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Verify admin is able to activate customer 1\", function () {\r\n    pm.response.to.have.status(200);\r\n    pm.expect(pm.response.json().message).to.contains(\"User updated successfully\"); \r\n});"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "PATCH",
             "header": [
@@ -330,6 +440,17 @@
         },
         {
           "name": "Active customer 2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Verify admin is able to activate customer 2\", function () {\r\n    pm.response.to.have.status(200);\r\n    pm.expect(pm.response.json().message).to.contains(\"User updated successfully\"); \r\n});"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "PATCH",
             "header": [
@@ -367,6 +488,17 @@
         },
         {
           "name": "Active agent",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Verify admin is able to activate agent\", function () {\r\n    pm.response.to.have.status(200);\r\n    pm.expect(pm.response.json().message).to.contains(\"User updated successfully\"); \r\n});"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "PATCH",
             "header": [
@@ -404,6 +536,17 @@
         },
         {
           "name": "Active merchant",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Verify admin is able to activate Merchant\", function () {\r\n    pm.response.to.have.status(200);\r\n    pm.expect(pm.response.json().message).to.contains(\"User updated successfully\"); \r\n});"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "PATCH",
             "header": [
@@ -455,7 +598,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "let jsonData = pm.response.json();\r\nlet systemAccessToken = jsonData.token;\r\n\r\npm.collectionVariables.set(\"systemAccessToken\", systemAccessToken);\r\n"
+                      "let jsonData = pm.response.json();\r\nlet systemAccessToken = jsonData.token;\r\n\r\npm.collectionVariables.set(\"systemAccessToken\", systemAccessToken);\r\n\r\npm.test(\"Verify SYSTEM is able to login and receives an access token\", function () {\r\n    pm.response.to.have.status(200);\r\n    pm.expect(pm.response.json().token).to.be.a(\"string\"); \r\n});\r\n"
                     ]
                   }
                 }
@@ -503,7 +646,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "\r\n"
+                      "pm.test(\"Verify OTP is requested when the agent logs in\", function () {\r\n    pm.response.to.have.status(200);\r\n    pm.expect(pm.response.json().otpRequired).to.be.true;\r\n});"
                     ]
                   }
                 }
@@ -546,7 +689,16 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "let jsonData = pm.response.json();\r\nlet agentAccessToken = jsonData.token;\r\n\r\npm.collectionVariables.set(\"agentAccessToken\", agentAccessToken);"
+                      "\r\n//let jsonData = pm.response.json();\r\n//let agentAccessToken = jsonData.token;\r\n\r\n\r\n//pm.collectionVariables.set(\"agentAccessToken\", agentAccessToken);\r\n\r\n\r\npm.test(\"Verify agent is able to login with OTP and receives an access token\", () => pm.response.to.have.status(200));\r\nvar token = pm.response.json().token;\r\npm.expect(token, \"token missing\").to.be.a(\"string\");\r\npm.collectionVariables.set(\"agentAccessToken\", token);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.collectionVariables.unset(\"agentAccessToken\");"
                     ]
                   }
                 }
@@ -589,6 +741,17 @@
           "item": [
             {
               "name": "Customer1 login",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Verify OTP is requested when the customer 1 logs in\", function () {\r\n    pm.response.to.have.status(200);\r\n    pm.expect(pm.response.json().otpRequired).to.be.true;\r\n});"
+                    ]
+                  }
+                }
+              ],
               "request": {
                 "method": "POST",
                 "header": [
@@ -627,7 +790,16 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "let jsonData = pm.response.json();\r\nlet customer1AccessToken = jsonData.token;\r\nconsole.log(\"Token: \", customer1AccessToken);\r\n\r\npm.collectionVariables.set(\"customer1AccessToken\", customer1AccessToken);\r\n"
+                      "//let jsonData = pm.response.json();\r\n//let customer1AccessToken = jsonData.token;\r\n//console.log(\"Token: \", customer1AccessToken);\r\n\r\n//pm.collectionVariables.set(\"customer1AccessToken\", customer1AccessToken);\r\n\r\n\r\npm.test(\"Verify OTP is requested when customer 1 logs in\", () => pm.response.to.have.status(200));\r\nvar token = pm.response.json().token;\r\npm.expect(token, \"token missing\").to.be.a(\"string\");\r\npm.collectionVariables.set(\"customer1AccessToken\", token);\r\n"
+                    ]
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.collectionVariables.unset(\"customer1AccessToken\");"
                     ]
                   }
                 }
@@ -670,6 +842,17 @@
           "item": [
             {
               "name": "Customer2 login",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Verify OTP is requested when the customer 2 logs in\", function () {\r\n    pm.response.to.have.status(200);\r\n    pm.expect(pm.response.json().otpRequired).to.be.true;\r\n});"
+                    ]
+                  }
+                }
+              ],
               "request": {
                 "method": "POST",
                 "header": [
@@ -708,7 +891,16 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "let jsonData = pm.response.json();\r\nlet customer2AccessToken = jsonData.token;\r\n\r\npm.collectionVariables.set(\"customer2AccessToken\", customer2AccessToken);"
+                      "//let jsonData = pm.response.json();\r\n//let customer2AccessToken = jsonData.token;\r\n\r\n//pm.collectionVariables.set(\"customer2AccessToken\", customer2AccessToken);\r\n\r\npm.test(\"Verify OTP is requested when customer 2 logs in\", () => pm.response.to.have.status(200));\r\nvar token = pm.response.json().token;\r\npm.expect(token, \"token missing\").to.be.a(\"string\");\r\npm.collectionVariables.set(\"customer2AccessToken\", token);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.collectionVariables.unset(\"customer2AccessToken\");"
                     ]
                   }
                 }
@@ -755,7 +947,65 @@
           "name": "System to Agent",
           "item": [
             {
+              "name": "SYSTEM deposits to a Customer",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Verify system is not able to deposit directly to a customer account\", function () {\r\n    const jsonData = pm.response.json();\r\n    pm.expect(jsonData.message).to.contains(\"SYSTEM account can only deposit to a regular Agent account. Customer and Merchant accounts are not allowed.\");\r\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{systemAccessToken}}"
+                  },
+                  {
+                    "key": "X-AUTH-SECRET-KEY",
+                    "value": "{{partnerKey}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"from_account\": \"SYSTEM\",\r\n  \"to_account\": \"{{customer1PhoneNumber}}\",\r\n  \"amount\": 5000\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/transaction/deposit",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "transaction",
+                    "deposit"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
               "name": "System to Agent",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Verify system is able to deposit to agent and the deposit amount is 5000 tk\", function () {\r\n    pm.response.to.have.status(201);\r\n    const b = pm.response.json();\r\n    pm.expect(b.amount).to.eql(5000)\r\n});"
+                    ]
+                  }
+                }
+              ],
               "request": {
                 "method": "POST",
                 "header": [
@@ -796,7 +1046,66 @@
           "name": "Agent to Customer",
           "item": [
             {
+              "name": "Deposit with no token",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "\r\n\r\npm.test(\"Verify that deposit is rejected when no token is sent\", function () {\r\n    \r\n    var jsonData = pm.response.json();\r\n    pm.expect(jsonData.message).to.contains(\"No Token Found!\");\r\n\r\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{agentAccessToken}}",
+                    "disabled": true
+                  },
+                  {
+                    "key": "X-AUTH-SECRET-KEY",
+                    "value": "{{partnerKey}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"from_account\": \"{{agentPhoneNumber}}\",\r\n    \"to_account\": \"{{customer1PhoneNumber}}\",\r\n    \"amount\": 2000\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/transaction/deposit",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "transaction",
+                    "deposit"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
               "name": "Agent to Customer",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "\r\n\r\npm.test(\"Verify that agent can deposit to customer1, and commission is 2.5% of 2000 (50 tk)\", function () {\r\n    \r\n    var jsonData = pm.response.json();\r\n    pm.expect(jsonData.message).to.contains(\"Deposit successful\");\r\n    pm.expect(jsonData.commission).to.eql(2000 * 0.025);\r\n});"
+                    ]
+                  }
+                }
+              ],
               "request": {
                 "method": "POST",
                 "header": [
@@ -837,7 +1146,65 @@
           "name": "Customer to Customer",
           "item": [
             {
+              "name": "Another user token",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Verify a user cannot make a deposit from another user's account\", function () {\r\n    var jsonData = pm.response.json();\r\n    pm.expect(jsonData.message).to.contains(\"Unauthorized: you can only initiate transactions from your own account\");\r\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{customer2AccessToken}}"
+                  },
+                  {
+                    "key": "X-AUTH-SECRET-KEY",
+                    "value": "{{partnerKey}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"from_account\": \"{{customer1PhoneNumber}}\",\r\n  \"to_account\": \"{{customer2PhoneNumber}}\",\r\n  \"amount\": 1000\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/transaction/sendmoney",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "transaction",
+                    "sendmoney"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
               "name": "Customer to Customer",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Verify that customer 1 can send money to customer 2 and the service fee is 5 tk\", function () {\r\n    var jsonData = pm.response.json();\r\n    pm.expect(jsonData.message).to.contains(\"Send money successful\");\r\n    pm.expect(jsonData.fee).to.eql(5);\r\n});"
+                    ]
+                  }
+                }
+              ],
               "request": {
                 "method": "POST",
                 "header": [
@@ -878,7 +1245,65 @@
           "name": "Customer to Agent",
           "item": [
             {
+              "name": "Deposit below the minimum",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Verify deposit below the minimum amount of 10 tk is rejected\", function () {\r\n    var jsonData = pm.response.json();\r\n    pm.expect(jsonData.message).to.contains(\"Minimum withdraw amount is 10 tk\");\r\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{customer2AccessToken}}"
+                  },
+                  {
+                    "key": "X-AUTH-SECRET-KEY",
+                    "value": "{{partnerKey}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"from_account\": \"{{customer2PhoneNumber}}\",\r\n  \"to_account\": \"{{agentPhoneNumber}}\",\r\n  \"amount\": 5\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/transaction/withdraw",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "transaction",
+                    "withdraw"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
               "name": "Customer to Agent",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Verify that customer 2 can withdraw money from agent and the service fee is 1%\", function () {\r\n    var jsonData = pm.response.json();\r\n    pm.expect(jsonData.message).to.contains(\"Withdraw successful\");\r\n    pm.expect(jsonData.fee).to.eql(Math.max(500 * 0.01, 5));\r\n});"
+                    ]
+                  }
+                }
+              ],
               "request": {
                 "method": "POST",
                 "header": [
@@ -919,7 +1344,112 @@
           "name": "Customer to Merchant",
           "item": [
             {
+              "name": "Pay a non-merchant",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Verify payment fails when the receiving account is not a merchant\", function () {\r\n    var jsonData = pm.response.json();\r\n    pm.expect(jsonData.message).to.contains(\"From A/C should be customer or agent and To A/C should be merchant type\");\r\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{customer2AccessToken}}"
+                  },
+                  {
+                    "key": "X-AUTH-SECRET-KEY",
+                    "value": "{{partnerKey}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"from_account\": \"{{customer2PhoneNumber}}\",\r\n  \"to_account\": \"{{agentPhoneNumber}}\",\r\n  \"amount\": 400\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/transaction/payment",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "transaction",
+                    "payment"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Insufficient balance",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Verify send money fails when the sender balance is insufficient\", function () {\r\n    var jsonData = pm.response.json();\r\n    pm.expect(jsonData.message).to.contains(\"Insufficient balance\");\r\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{customer2AccessToken}}"
+                  },
+                  {
+                    "key": "X-AUTH-SECRET-KEY",
+                    "value": "{{partnerKey}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"from_account\": \"{{customer2PhoneNumber}}\",\r\n  \"to_account\": \"{{merchantPhoneNumber}}\",\r\n  \"amount\": 4010\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/transaction/payment",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "transaction",
+                    "payment"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
               "name": "Customer to Merchant",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Verify that customer 2 can make payment to merchant and the service fee is 1%\", function () {\r\n    var jsonData = pm.response.json();\r\n    pm.expect(jsonData.message).to.contains(\"Payment successful\");\r\n    pm.expect(jsonData.fee).to.eql(Math.max(400 * 0.01, 5));\r\n});"
+                    ]
+                  }
+                }
+              ],
               "request": {
                 "method": "POST",
                 "header": [
@@ -973,15 +1503,11 @@
       "secret": true
     },
     {
-      "key": "customer1AccessToken",
+      "key": "agentAccessToken",
       "secret": true
     },
     {
       "key": "customer2AccessToken",
-      "secret": true
-    },
-    {
-      "key": "agentAccessToken",
       "secret": true
     },
     {
@@ -990,51 +1516,55 @@
     },
     {
       "key": "customer1Id",
-      "value": 2660
+      "value": 2841
     },
     {
       "key": "customer2Id",
-      "value": 2661
+      "value": 2842
     },
     {
       "key": "merchantId",
-      "value": 2663
+      "value": 2844
     },
     {
       "key": "agentId",
-      "value": 2662
+      "value": 2843
     },
     {
       "key": "customer1PhoneNumber",
-      "value": "01306353630"
+      "value": "01307906491"
     },
     {
       "key": "customer2PhoneNumber",
-      "value": "01306436300"
+      "value": "01308730564"
     },
     {
       "key": "agentPhoneNumber",
-      "value": "01306456578"
+      "value": "01304340231"
     },
     {
       "key": "merchantPhoneNumber",
-      "value": "01307750552"
+      "value": "01304103710"
     },
     {
       "key": "customer1GmailId",
-      "value": 6379
+      "value": 9710
     },
     {
       "key": "customer2GmailId",
-      "value": 2438
+      "value": 10752
     },
     {
       "key": "agentGmailId",
-      "value": 7219
+      "value": 7740
     },
     {
       "key": "merchantGmailId",
-      "value": 3469
+      "value": 3315
+    },
+    {
+      "key": "customer1AccessToken",
+      "secret": true
     }
   ]
 }

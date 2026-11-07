@@ -1,12 +1,12 @@
 const newman = require('newman');
 
 newman.run({
-    collection: './collection/Assignment2_collection.json', // Collection URL from a public link or the Postman API can also be used
+    collection: './collection/Assignment_2_postman_full_collection.json', // Collection URL from a public link or the Postman API can also be used
     reporters: ['htmlextra'],
     iterationCount: 1,
     reporter: {
         htmlextra: {
-             export: './Reports/report.html',
+            export: './Reports/report.html',
             // template: './template.hbs'
             // logs: true,
             // showOnlyFails: true,
