@@ -73,3 +73,9 @@ API documentation: https://documenter.getpostman.com/view/18876113/2sBYHYtxpf
 
 ## Test Cases
 https://docs.google.com/spreadsheets/d/1bNw7jQ__TcfVeqO1QMU9pRmN6VPgR82U0KmjoZrNv3Y/edit?usp=drive_link
+
+## Summary
+
+<img width="962" height="944" alt="image" src="https://github.com/user-attachments/assets/054b45d1-2d83-4f17-9a00-ad9a5aad7fd6" />
+<img width="962" height="872" alt="image" src="https://github.com/user-attachments/assets/02dc581a-3bf6-4dc7-b19b-06963255d9ce" />
+
