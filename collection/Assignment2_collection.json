@@ -1,0 +1,1040 @@
+{
+  "info": {
+    "_postman_id": "1cb254f5-630f-489e-958e-a42c2e93cf8a",
+    "name": "Assignment 2",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "18876113"
+  },
+  "item": [
+    {
+      "name": "Users login",
+      "item": [
+        {
+          "name": "Admin Login",
+          "item": [
+            {
+              "name": "Admin login",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let jsonData = pm.response.json();\r\nlet adminAccessToken = jsonData.token;\r\n\r\npm.collectionVariables.set(\"adminAccessToken\", adminAccessToken);\r\n"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminAccessToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"email\": \"admin@dmoney.com\",\r\n  \"password\": \"1234\"\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/user/login",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "user",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Add users",
+      "item": [
+        {
+          "name": "Add customer 1",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let prefix = \"0130\";\r\nlet min = 1000000;\r\nlet max = 9999999;\r\n\r\nlet randomNumber = Math.round(Math.random()*(max-min)+min);\r\nlet phoneNumber = prefix+randomNumber;\r\n\r\nconsole.log(\"customer 1 phone number\", phoneNumber);\r\npm.collectionVariables.set(\"customer1PhoneNumber\", phoneNumber);\r\n\r\nlet gmailId = Math.round(Math.random()*(1000,9999)+1000);\r\npm.collectionVariables.set(\"customer1GmailId\", gmailId);\r\nconsole.log(\"customer 1 gmail id\", gmailId);        "
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let jsonData = pm.response.json();\r\nlet customer1Id = jsonData.user.id;\r\n\r\npm.collectionVariables.set(\"customer1Id\", customer1Id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              },
+              {
+                "key": "X-AUTH-SECRET-KEY",
+                "value": "{{partnerKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Customer1-{{$randomFullName}}\",\r\n  \"email\": \"r02.shifat+{{customer1GmailId}}@gmail.com\",\r\n  \"password\": \"pass1234\",\r\n  \"phone_number\": \"{{customer1PhoneNumber}}\",\r\n  \"nid\": \"9876543210\",\r\n  \"role\": \"Customer\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/user/create",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "user",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add customer 2",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let prefix = \"0130\";\r\nlet min = 1000000;\r\nlet max = 9999999;\r\n\r\nlet randomNumber = Math.round(Math.random()*(max-min)+min);\r\nlet phoneNumber = prefix+randomNumber;\r\n\r\nconsole.log(\"customer 2 phone number\", phoneNumber);\r\npm.collectionVariables.set(\"customer2PhoneNumber\", phoneNumber);\r\n\r\nlet gmailId = Math.round(Math.random()*(1000,9999)+1000);\r\npm.collectionVariables.set(\"customer2GmailId\", gmailId);\r\nconsole.log(\"customer 2 gmail id\", gmailId); "
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let jsonData = pm.response.json();\r\nlet customer2Id = jsonData.user.id;\r\n\r\npm.collectionVariables.set(\"customer2Id\", customer2Id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              },
+              {
+                "key": "X-AUTH-SECRET-KEY",
+                "value": "{{partnerKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Customer2-{{$randomFullName}}\",\r\n  \"email\": \"r02.shifat+{{customer2GmailId}}@gmail.com\",\r\n  \"password\": \"pass1234\",\r\n  \"phone_number\": \"{{customer2PhoneNumber}}\",\r\n  \"nid\": \"9876543210\",\r\n  \"role\": \"Customer\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/user/create",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "user",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add agent",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let prefix = \"0130\";\r\nlet min = 1000000;\r\nlet max = 9999999;\r\n\r\nlet randomNumber = Math.round(Math.random()*(max-min)+min);\r\nlet phoneNumber = prefix+randomNumber;\r\n\r\nconsole.log(\"Agent phone number\", phoneNumber);\r\npm.collectionVariables.set(\"agentPhoneNumber\", phoneNumber);\r\n\r\nlet gmailId = Math.round(Math.random()*(1000,9999)+1000);\r\npm.collectionVariables.set(\"agentGmailId\", gmailId);\r\nconsole.log(\"Agent gmail id\", gmailId); "
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let jsonData = pm.response.json();\r\nlet agentId = jsonData.user.id;\r\n\r\npm.collectionVariables.set(\"agentId\", agentId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              },
+              {
+                "key": "X-AUTH-SECRET-KEY",
+                "value": "{{partnerKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Agent-{{$randomFullName}}\",\r\n  \"email\": \"r02.shifat+{{agentGmailId}}@gmail.com\",\r\n  \"password\": \"pass1234\",\r\n  \"phone_number\": \"{{agentPhoneNumber}}\",\r\n  \"nid\": \"9876543210\",\r\n  \"role\": \"Agent\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/user/create",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "user",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add merchant",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let prefix = \"0130\";\r\nlet min = 1000000;\r\nlet max = 9999999;\r\n\r\nlet randomNumber = Math.round(Math.random()*(max-min)+min);\r\nlet phoneNumber = prefix+randomNumber;\r\n\r\nconsole.log(\"Merchant phone number\", phoneNumber);\r\npm.collectionVariables.set(\"merchantPhoneNumber\", phoneNumber);\r\n\r\nlet gmailId = Math.round(Math.random()*(1000,9999)+1000);\r\npm.collectionVariables.set(\"merchantGmailId\", gmailId);\r\nconsole.log(\"Merchant gmail id\", gmailId);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let jsonData = pm.response.json();\r\nlet merchantId = jsonData.user.id;\r\n\r\npm.collectionVariables.set(\"merchantId\", merchantId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              },
+              {
+                "key": "X-AUTH-SECRET-KEY",
+                "value": "{{partnerKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Merchant-{{$randomFullName}}\",\r\n  \"email\": \"r02.shifat+{{merchantGmailId}}@gmail.com\",\r\n  \"password\": \"pass1234\",\r\n  \"phone_number\": \"{{merchantPhoneNumber}}\",\r\n  \"nid\": \"9876543210\",\r\n  \"role\": \"Merchant\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/user/create",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "user",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Active users",
+      "item": [
+        {
+          "name": "Active customer 1",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              },
+              {
+                "key": "X-AUTH-SECRET-KEY",
+                "value": "{{partnerKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\": \"active\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/user/update/{{customer1Id}}",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "user",
+                "update",
+                "{{customer1Id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Active customer 2",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              },
+              {
+                "key": "X-AUTH-SECRET-KEY",
+                "value": "{{partnerKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\": \"active\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/user/update/{{customer2Id}}",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "user",
+                "update",
+                "{{customer2Id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Active agent",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              },
+              {
+                "key": "X-AUTH-SECRET-KEY",
+                "value": "{{partnerKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\": \"active\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/user/update/{{agentId}}",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "user",
+                "update",
+                "{{agentId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Active merchant",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              },
+              {
+                "key": "X-AUTH-SECRET-KEY",
+                "value": "{{partnerKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\": \"active\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/user/update/{{merchantId}}",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "user",
+                "update",
+                "{{merchantId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Other Users Login",
+      "item": [
+        {
+          "name": "System Login",
+          "item": [
+            {
+              "name": "System login",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let jsonData = pm.response.json();\r\nlet systemAccessToken = jsonData.token;\r\n\r\npm.collectionVariables.set(\"systemAccessToken\", systemAccessToken);\r\n"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{systemAccessToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"email\": \"system@dmoney.com\",\r\n  \"password\": \"1234\"\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/user/login",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "user",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Agent login",
+          "item": [
+            {
+              "name": "Agent login",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "\r\n"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{agentAccessToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"email\": \"{{agentPhoneNumber}}\",\r\n  \"password\": \"pass1234\"\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/user/login",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "user",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Agent verify OTP",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let jsonData = pm.response.json();\r\nlet agentAccessToken = jsonData.token;\r\n\r\npm.collectionVariables.set(\"agentAccessToken\", agentAccessToken);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"identifier\": \"{{agentPhoneNumber}}\",\r\n  \"otp\": \"0000\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/user/verify-otp?env=dev",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "user",
+                    "verify-otp"
+                  ],
+                  "query": [
+                    {
+                      "key": "env",
+                      "value": "dev"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Customer1 login",
+          "item": [
+            {
+              "name": "Customer1 login",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{customer1AccessToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"email\": \"{{customer1PhoneNumber}}\",\r\n  \"password\": \"pass1234\"\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/user/login",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "user",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Customer1 verify OTP",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let jsonData = pm.response.json();\r\nlet customer1AccessToken = jsonData.token;\r\nconsole.log(\"Token: \", customer1AccessToken);\r\n\r\npm.collectionVariables.set(\"customer1AccessToken\", customer1AccessToken);\r\n"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"identifier\": \"{{customer1PhoneNumber}}\",\r\n  \"otp\": \"0000\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/user/verify-otp?env=dev",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "user",
+                    "verify-otp"
+                  ],
+                  "query": [
+                    {
+                      "key": "env",
+                      "value": "dev"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Customer2 Login",
+          "item": [
+            {
+              "name": "Customer2 login",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{customer2AccessToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"email\": \"{{customer2PhoneNumber}}\",\r\n  \"password\": \"pass1234\"\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/user/login",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "user",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Customer2 verify OTP",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let jsonData = pm.response.json();\r\nlet customer2AccessToken = jsonData.token;\r\n\r\npm.collectionVariables.set(\"customer2AccessToken\", customer2AccessToken);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"identifier\": \"{{customer2PhoneNumber}}\",\r\n  \"otp\": \"0000\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/user/verify-otp?env=dev",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "user",
+                    "verify-otp"
+                  ],
+                  "query": [
+                    {
+                      "key": "env",
+                      "value": "dev"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Transaction",
+      "item": [
+        {
+          "name": "System to Agent",
+          "item": [
+            {
+              "name": "System to Agent",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{systemAccessToken}}"
+                  },
+                  {
+                    "key": "X-AUTH-SECRET-KEY",
+                    "value": "{{partnerKey}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"from_account\": \"SYSTEM\",\r\n  \"to_account\": \"{{agentPhoneNumber}}\",\r\n  \"amount\": 5000\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/transaction/deposit",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "transaction",
+                    "deposit"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Agent to Customer",
+          "item": [
+            {
+              "name": "Agent to Customer",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{agentAccessToken}}"
+                  },
+                  {
+                    "key": "X-AUTH-SECRET-KEY",
+                    "value": "{{partnerKey}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"from_account\": \"{{agentPhoneNumber}}\",\r\n    \"to_account\": \"{{customer1PhoneNumber}}\",\r\n    \"amount\": 2000\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/transaction/deposit",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "transaction",
+                    "deposit"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Customer to Customer",
+          "item": [
+            {
+              "name": "Customer to Customer",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{customer1AccessToken}}"
+                  },
+                  {
+                    "key": "X-AUTH-SECRET-KEY",
+                    "value": "{{partnerKey}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"from_account\": \"{{customer1PhoneNumber}}\",\r\n  \"to_account\": \"{{customer2PhoneNumber}}\",\r\n  \"amount\": 1000\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/transaction/sendmoney",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "transaction",
+                    "sendmoney"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Customer to Agent",
+          "item": [
+            {
+              "name": "Customer to Agent",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{customer2AccessToken}}"
+                  },
+                  {
+                    "key": "X-AUTH-SECRET-KEY",
+                    "value": "{{partnerKey}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"from_account\": \"{{customer2PhoneNumber}}\",\r\n  \"to_account\": \"{{agentPhoneNumber}}\",\r\n  \"amount\": 500\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/transaction/withdraw",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "transaction",
+                    "withdraw"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Customer to Merchant",
+          "item": [
+            {
+              "name": "Customer to Merchant",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{customer2AccessToken}}"
+                  },
+                  {
+                    "key": "X-AUTH-SECRET-KEY",
+                    "value": "{{partnerKey}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"from_account\": \"{{customer2PhoneNumber}}\",\r\n  \"to_account\": \"{{merchantPhoneNumber}}\",\r\n  \"amount\": 400\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseURL}}/transaction/payment",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "transaction",
+                    "payment"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseURL",
+      "value": "http://localhost:5000"
+    },
+    {
+      "key": "adminAccessToken",
+      "secret": true
+    },
+    {
+      "key": "systemAccessToken",
+      "secret": true
+    },
+    {
+      "key": "customer1AccessToken",
+      "secret": true
+    },
+    {
+      "key": "customer2AccessToken",
+      "secret": true
+    },
+    {
+      "key": "agentAccessToken",
+      "secret": true
+    },
+    {
+      "key": "partnerKey",
+      "value": "ROADTOSDET"
+    },
+    {
+      "key": "customer1Id",
+      "value": 2660
+    },
+    {
+      "key": "customer2Id",
+      "value": 2661
+    },
+    {
+      "key": "merchantId",
+      "value": 2663
+    },
+    {
+      "key": "agentId",
+      "value": 2662
+    },
+    {
+      "key": "customer1PhoneNumber",
+      "value": "01306353630"
+    },
+    {
+      "key": "customer2PhoneNumber",
+      "value": "01306436300"
+    },
+    {
+      "key": "agentPhoneNumber",
+      "value": "01306456578"
+    },
+    {
+      "key": "merchantPhoneNumber",
+      "value": "01307750552"
+    },
+    {
+      "key": "customer1GmailId",
+      "value": 6379
+    },
+    {
+      "key": "customer2GmailId",
+      "value": 2438
+    },
+    {
+      "key": "agentGmailId",
+      "value": 7219
+    },
+    {
+      "key": "merchantGmailId",
+      "value": 3469
+    }
+  ]
+}
